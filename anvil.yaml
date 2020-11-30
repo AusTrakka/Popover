@@ -13,7 +13,7 @@ native_deps: {head_html: "\n<script>\n  \nfunction get_jQuery_obj(component) {\n
     \ object\n  };\n  \nfunction popover(popper, content, title, placement, trigger,\
     \ animation, delay, html) {\n    var popper = get_jQuery_obj(popper)\n    if (html)\
     \ {\n        var content = content.v._anvil.element\n    };\n\n    $(popper).popover({\n\
-    \        content: content,\n        title: title,\n        placement: placement,\n\
+    \        content: content,\n        container: 'body',\n        title: title,\n        placement: placement,\n\
     \        trigger: trigger,\n        animation: animation,\n        delay: delay,\n\
     \        html: html\n    });\n\n};\n\nfunction pop(popper, behaviour) {\n   var\
     \ popper = get_jQuery_obj(popper)\n\n    if (behaviour == 'is_visible') {\n  \
