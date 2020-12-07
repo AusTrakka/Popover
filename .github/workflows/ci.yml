@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+jobs:
+  repo-sync:
+    name: Push to Husky Repo
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+        ref: 'master'
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+         key: ${{ secrets.HUSKY_PRIVATE_SSH_KEY }}
+         known_hosts: ${{ secrets.HUSKY_KNOWN_HOSTS }}
+    - name: Push to Husky's popover
+      run: |
+        git config --global user.email ${{ secrets.AUSTRAKKA_BOT_EMAIL }}
+        git config --global user.name ${{ secrets.AUSTRAKKA_BOT_USERNAME }}
+        git clone ${{secrets.HUSKY_REPO_PATH}} husky_repo
+        cd husky_repo
+        git remote add github $GITHUB_WORKSPACE
+        git fetch github
+        git merge github/master --no-edit
+        git push origin master
+  trigger-build:
+    name: Trigger Azure Build Pipeline
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure Pipelines Action
+      uses: Azure/pipelines@v1
+      with:
+        azure-devops-project-url: https://dev.azure.com/mduphl/austrakka-azure-web-app
+        azure-pipeline-name: 'austrakka-build'
+        azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT_BUILD }}
