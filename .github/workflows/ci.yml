@@ -3,9 +3,21 @@ on:
   push:
     branches: [ master ]
 jobs:
+  tag-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@1.33.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.AUSTRAKKA_ACTIONS_PAT }}
+        WITH_V: false
   repo-sync:
     name: Push to Husky Repo
     runs-on: ubuntu-latest
+    needs: tag-commit
     steps:
     - uses: actions/checkout@v2
       with:
@@ -26,13 +38,3 @@ jobs:
         git fetch github
         git merge github/master --no-edit
         git push origin master
-  trigger-build:
-    name: Trigger Azure Build Pipeline
-    runs-on: ubuntu-latest
-    steps:
-    - name: Azure Pipelines Action
-      uses: Azure/pipelines@v1
-      with:
-        azure-devops-project-url: https://dev.azure.com/mduphl/austrakka-azure-web-app
-        azure-pipeline-name: 'austrakka-build'
-        azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT_BUILD }}
